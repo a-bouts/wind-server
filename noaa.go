@@ -112,7 +112,7 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 
 	for h <= 384 {
 		_, found := n.Forecasts[stamp.key(h)]
-		if stamp.fromNow(h) <= -3 || stamp.fromNow(h) <= 3 && found {
+		if stamp.fromNow(h) <= -3 || stamp.fromNow(h) <= 0 && found {
 			h += 3
 			continue
 		}
