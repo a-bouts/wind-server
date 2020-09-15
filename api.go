@@ -33,6 +33,7 @@ func InitServer(n *Noaa) *mux.Router {
 type Forecast struct {
 	Hour     int    `json:"hour"`
 	Stamp    string `json:"stamp"`
+	Stamp2   string `json:"stamp2"`
 	Forecast string `json:"forecast"`
 }
 
@@ -46,8 +47,8 @@ func (s server) getWindsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	sort.Strings(keys)
 	for _, k := range keys {
-		stamp := stampFromFile(s.n.Forecasts[k])
-		h, err := strconv.Atoi(strings.Split(s.n.Forecasts[k], ".")[1][1:])
+		stamp := stampFromFile(s.n.Forecasts[k][0])
+		h, err := strconv.Atoi(strings.Split(s.n.Forecasts[k][0], ".")[1][1:])
 		if err != nil {
 			fmt.Println("Error", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -55,6 +56,12 @@ func (s server) getWindsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		forecast := Forecast{Hour: stamp.fromNow(h), Stamp: stamp.date + stamp.hour, Forecast: k}
+
+		if len(s.n.Forecasts[k]) > 1 {
+			stamp2 := stampFromFile(s.n.Forecasts[k][1])
+			forecast.Stamp2 = stamp2.date + stamp2.hour
+		}
+
 		forecasts = append(forecasts, forecast)
 	}
 
@@ -76,7 +83,7 @@ func (s server) getWindHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	in, err := os.Open("json-data/" + s.n.Forecasts[forecast])
+	in, err := os.Open("json-data/" + s.n.Forecasts[forecast][0])
 	if err != nil {
 		fmt.Println("Error", err)
 		w.WriteHeader(http.StatusInternalServerError)

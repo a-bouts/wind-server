@@ -18,7 +18,7 @@ import (
 )
 
 type Noaa struct {
-	Forecasts      map[string]string
+	Forecasts      map[string]([]string)
 	RefreshWebhook string
 }
 
@@ -88,10 +88,12 @@ func (n *Noaa) clean() error {
 	}
 
 	for _, s := range toDelete {
-		log.Println("Delete", s, n.Forecasts[s])
-		os.Remove("grib-data/" + n.Forecasts[s])
-		os.Remove("json-data/" + n.Forecasts[s])
-		delete(n.Forecasts, s)
+		for i, file := range n.Forecasts[s] {
+			log.Println("Delete", s, n.Forecasts[s][i])
+			os.Remove("grib-data/" + file)
+			os.Remove("json-data/" + file)
+			delete(n.Forecasts, s)
+		}
 	}
 
 	return nil
@@ -119,13 +121,15 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 		if _, err := os.Stat("grib-data/" + stamp.filename(h)); os.IsNotExist(err) {
 			ok := n.getGribData(t, h)
 			if ok {
-				forecastFile, found := n.Forecasts[stamp.key(h)]
-				if stamp.fromNow(h) >= 0 && found {
-					log.Println("Delete", forecastFile)
-					os.Remove("grib-data/" + forecastFile)
-					os.Remove("json-data/" + forecastFile)
+				forecastFiles, found := n.Forecasts[stamp.key(h)]
+				if stamp.fromNow(h) >= 3 && found {
+					for _, forecastFile := range forecastFiles {
+						log.Println("Delete", forecastFile)
+						os.Remove("grib-data/" + forecastFile)
+						os.Remove("json-data/" + forecastFile)
+					}
 				}
-				n.Forecasts[stamp.key(h)] = stamp.filename(h)
+				n.Forecasts[stamp.key(h)] = append(n.Forecasts[stamp.key(h)], stamp.filename(h))
 				downloadedSome = true
 			}
 			if !ok || h == 384 {
@@ -143,7 +147,7 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 	return downloadedSome
 }
 
-func parseGribDataFiles() (map[string]string, error) {
+func parseGribDataFiles() (map[string][]string, error) {
 	var files []string
 	err := filepath.Walk("grib-data", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -160,7 +164,7 @@ func parseGribDataFiles() (map[string]string, error) {
 
 	sort.Strings(files)
 
-	forecasts := make(map[string]string)
+	forecasts := make(map[string][]string)
 
 	for cpt, f := range files {
 
@@ -183,16 +187,18 @@ func parseGribDataFiles() (map[string]string, error) {
 			continue
 		}
 
-		forecastFile, found := forecasts[stamp.key(h)]
-		if forecastHour >= 0 && found {
-			log.Println("Delete", forecastFile)
-			os.Remove("grib-data/" + forecastFile)
-			os.Remove("json-data/" + forecastFile)
+		forecastFiles, found := forecasts[stamp.key(h)]
+		if forecastHour >= 3 && found {
+			for _, forecastFile := range forecastFiles {
+				log.Println("Delete", forecastFile)
+				os.Remove("grib-data/" + forecastFile)
+				os.Remove("json-data/" + forecastFile)
+			}
 		}
 
 		//quand c'est la prévision courante, on la conserve meme si une nouvelle prévision est arrivé
-		if !found || forecastHour >= 3 {
-			forecasts[stamp.key(h)] = f
+		if !found || forecastHour >= 0 {
+			forecasts[stamp.key(h)] = append(forecasts[stamp.key(h)], f)
 		}
 	}
 
