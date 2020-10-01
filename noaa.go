@@ -128,6 +128,7 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 						os.Remove("grib-data/" + forecastFile)
 						os.Remove("json-data/" + forecastFile)
 					}
+					n.Forecasts[stamp.key(h)] = nil
 				}
 				n.Forecasts[stamp.key(h)] = append(n.Forecasts[stamp.key(h)], stamp.filename(h))
 				downloadedSome = true
