@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jasonlvhit/gocron"
+	"github.com/go-co-op/gocron"
 )
 
 type Noaa struct {
@@ -51,10 +51,10 @@ func InitNoaa(refreshWebhook string) (*Noaa, error) {
 		RefreshWebhook: refreshWebhook}
 
 	from := time.Now().Truncate(time.Minute * 5).Add(time.Minute * 5)
-	s := gocron.NewScheduler()
+	s := gocron.NewScheduler(time.UTC)
 	gocron.SetLocker(&locker{})
-	s.Every(5).Minutes().From(&from).Lock().Do(n.download)
-	go s.Start()
+	s.Every(5).Minutes().StartAt(from.UTC()).Lock().Do(n.download)
+	go s.StartBlocking()
 
 	return n, nil
 }

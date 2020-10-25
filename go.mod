@@ -6,6 +6,7 @@ require (
 	github.com/abbot/go-http-auth v0.4.0
 	github.com/auth0/go-jwt-middleware v0.0.0-20200507191422-d30d7b9ece63
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-co-op/gocron v0.3.1
 	github.com/gorilla/mux v1.7.4
 	github.com/jasonlvhit/gocron v0.0.0-20200423141508-ab84337f7963
 	github.com/nilsmagnus/grib v1.2.6
