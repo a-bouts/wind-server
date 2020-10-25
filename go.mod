@@ -8,6 +8,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.7.4
 	github.com/jasonlvhit/gocron v0.0.0-20200423141508-ab84337f7963
+	github.com/nilsmagnus/grib v1.2.6
 	github.com/peterbourgon/ff v1.7.0
 	github.com/peterbourgon/ff/v3 v3.0.0 // indirect
 )

@@ -131,6 +131,10 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 					n.Forecasts[stamp.key(h)] = nil
 				}
 				n.Forecasts[stamp.key(h)] = append(n.Forecasts[stamp.key(h)], stamp.filename(h))
+				_, err := http.Get(n.RefreshWebhook)
+				if err != nil {
+					log.Println("Error calling refresh webhook", err)
+				}
 				downloadedSome = true
 			}
 			if !ok || h == 384 {
@@ -268,7 +272,7 @@ func downloadGribData(stamp Stamp, forecast int) (ok bool, err error) {
 	if resp.StatusCode == http.StatusOK {
 		defer resp.Body.Close()
 
-		out, err := os.Create("grib-data/" + stamp.filename(forecast))
+		out, err := os.Create("grib-data/" + stamp.filename(forecast) + ".tmp")
 		if err != nil {
 			fmt.Println("Error when sending request to the server", err)
 			return false, err
@@ -281,6 +285,44 @@ func downloadGribData(stamp Stamp, forecast int) (ok bool, err error) {
 			fmt.Println("Error when sending request to the server", err)
 			return false, err
 		}
+
+		os.Rename("grib-data/"+stamp.filename(forecast)+".tmp", "grib-data/"+stamp.filename(forecast))
+
+		// gribFile, err := os.Open("grib-data/" + stamp.filename(forecast) + ".tmp")
+		// if err != nil {
+		// 	fmt.Printf("\nFile [%s] not found.\n", "grib-data/"+stamp.filename(forecast)+".tmp")
+		// 	return false, err
+		// }
+		// defer gribFile.Close()
+		//
+		// reduceFile, err := os.Create("grib-data/" + stamp.filename(forecast))
+		// if err != nil {
+		// 	fmt.Printf("Error creating reduced reduceFile: %s", err.Error())
+		// 	return false, err
+		// }
+		//
+		// defer reduceFile.Close()
+		//
+		// end := make(chan bool)
+		// content := make(chan []byte)
+		//
+		// options := griblib.Options{
+		// 	Discipline: 0,
+		// 	Category:   2,
+		// 	Surface:    griblib.Surface{Type: 1}}
+		//
+		// go griblib.Reduce(gribFile, options, content, end)
+		//
+		// for {
+		// 	select {
+		// 	case <-end:
+		// 		fmt.Printf("reduce done to file '%s'. \n", "grib-data/"+stamp.filename(forecast))
+		// 		log.Println(resp.StatusCode, ": Downloading OK")
+		// 		return true, nil
+		// 	case bytesRead := <-content:
+		// 		reduceFile.Write(bytesRead)
+		// 	}
+		// }
 
 		log.Println(resp.StatusCode, ": Downloading OK")
 		return true, nil

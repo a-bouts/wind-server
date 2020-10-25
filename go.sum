@@ -22,6 +22,8 @@ github.com/jasonlvhit/gocron v0.0.0-20200423141508-ab84337f7963 h1:IFvW+Yz/6m9m+
 github.com/jasonlvhit/gocron v0.0.0-20200423141508-ab84337f7963/go.mod h1:k9a3TV8VcU73XZxfVHCHWMWF9SOqgoku0/QlY2yvlA4=
 github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
 github.com/mitchellh/go-wordwrap v1.0.0/go.mod h1:ZXFpozHsX6DPmq2I0TCekCxypsnAUbP2oI0UX1GXzOo=
+github.com/nilsmagnus/grib v1.2.6 h1:FVechasVY5pzpgw/62123mA8eclZmPWiwM1+/ZrljPc=
+github.com/nilsmagnus/grib v1.2.6/go.mod h1:o5OUxxktfRRcmA3RAINrRWBDq7S4QYLQ9x9y4x4KyA8=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.10.1/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/gomega v1.7.0/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
