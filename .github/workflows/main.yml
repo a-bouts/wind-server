@@ -33,7 +33,7 @@ jobs:
           --cache-to "type=local,dest=/tmp/.buildx-cache" \
           --platform linux/amd64,linux/arm64,linux/arm/v7 \
           --output "type=image,push=false" \
-          --tag stoub/wind-server:latest \
+          --tag stoub/wind-server:test \
           --file ./Dockerfile ./
 
     - name: Docker Login
@@ -49,7 +49,7 @@ jobs:
           --cache-from "type=local,src=/tmp/.buildx-cache" \
           --platform linux/amd64,linux/arm64,linux/arm/v7 \
           --output "type=image,push=true" \
-          --tag stoub/wind-server:latest \
+          --tag stoub/wind-server:test \
           --file ./Dockerfile ./
 
     - name: Clear
