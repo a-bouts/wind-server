@@ -20,6 +20,7 @@ import (
 type Noaa struct {
 	Forecasts      map[string]([]string)
 	RefreshWebhook string
+	Running        bool
 }
 
 type locker struct {
@@ -60,6 +61,10 @@ func InitNoaa(refreshWebhook string) (*Noaa, error) {
 }
 
 func (n *Noaa) download() {
+	if n.Running {
+		return
+	}
+	n.Running = true
 	log.Println("Something to delete ?")
 	n.clean()
 	log.Println("Something to download ?")
@@ -69,6 +74,7 @@ func (n *Noaa) download() {
 			log.Println("Error calling refresh webhook", err)
 		}
 	}
+	n.Running = false
 }
 
 func (n *Noaa) clean() error {
