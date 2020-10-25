@@ -347,6 +347,10 @@ func convertGribToJson(stamp Stamp, forecast int) error {
 		"--output",
 		"json-data/" + stamp.filename(forecast),
 		"--names",
+		"--fs",
+		"103",
+		"--fv",
+		"10.0",
 		"--compact",
 		"grib-data/" + stamp.filename(forecast)}
 
