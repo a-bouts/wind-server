@@ -70,7 +70,7 @@ func (n *Noaa) download() {
 	log.Println("Something to delete ?")
 	n.clean()
 	log.Println("Something to download ?")
-	if n.nextToDownload(time.Now()) || n.nextToDownload(time.Now().Add(-6*time.Hour)) {
+	if n.nextToDownload(time.Now()) {
 		n.refreshWebhook()
 	}
 	n.Running = false
@@ -117,6 +117,7 @@ func (n *Noaa) refreshWebhook() {
 
 func (n *Noaa) nextToDownload(t time.Time) bool {
 	h := 0
+	first := true
 
 	downloadedSome := false
 
@@ -146,7 +147,7 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 			}
 			if !ok || h == 384 {
 				// TODO : check mais c'est pas terrible terrible...
-				if h <= 3 {
+				if first {
 					return n.nextToDownload(t.Add(-6 * time.Hour))
 				}
 				//on arrete là pour le moment
@@ -154,6 +155,7 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 			}
 		}
 		h += 3
+		first = false
 	}
 
 	return downloadedSome
