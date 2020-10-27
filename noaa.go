@@ -57,7 +57,7 @@ func InitNoaa(refreshWebhook string) (*Noaa, error) {
 	s.Every(5).Minutes().StartAt(from.UTC()).Lock().Do(n.download)
 	go s.StartBlocking()
 
-	n.download()
+	//n.download()
 
 	return n, nil
 }
@@ -350,7 +350,7 @@ func convertGribToJson(stamp Stamp, forecast int) error {
 		"--fs",
 		"103",
 		"--fv",
-		"10.0",
+		"10",
 		"--compact",
 		"grib-data/" + stamp.filename(forecast)}
 
