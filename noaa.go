@@ -57,6 +57,8 @@ func InitNoaa(refreshWebhook string) (*Noaa, error) {
 	s.Every(5).Minutes().StartAt(from.UTC()).Lock().Do(n.download)
 	go s.StartBlocking()
 
+	n.download()
+
 	return n, nil
 }
 
@@ -68,11 +70,8 @@ func (n *Noaa) download() {
 	log.Println("Something to delete ?")
 	n.clean()
 	log.Println("Something to download ?")
-	if n.nextToDownload(time.Now()) {
-		_, err := http.Get(n.RefreshWebhook)
-		if err != nil {
-			log.Println("Error calling refresh webhook", err)
-		}
+	if n.nextToDownload(time.Now()) || n.nextToDownload(time.Now().Add(-6*time.Hour)) {
+		n.refreshWebhook()
 	}
 	n.Running = false
 }
@@ -105,16 +104,21 @@ func (n *Noaa) clean() error {
 	return nil
 }
 
+func (n *Noaa) refreshWebhook() {
+	if n.RefreshWebhook == "" {
+		return
+	}
+
+	_, err := http.Get(n.RefreshWebhook)
+	if err != nil {
+		log.Println("Error calling refresh webhook", err)
+	}
+}
+
 func (n *Noaa) nextToDownload(t time.Time) bool {
 	h := 0
 
 	downloadedSome := false
-
-	p := t.Add(time.Hour * time.Duration(-1*(t.UTC().Hour()%6)))
-
-	if time.Now().Sub(p) < time.Hour*3 {
-		return n.nextToDownload(t.Add(-6 * time.Hour))
-	}
 
 	stamp := stampFromTime(t)
 
@@ -137,10 +141,7 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 					n.Forecasts[stamp.key(h)] = nil
 				}
 				n.Forecasts[stamp.key(h)] = append(n.Forecasts[stamp.key(h)], stamp.filename(h))
-				_, err := http.Get(n.RefreshWebhook)
-				if err != nil {
-					log.Println("Error calling refresh webhook", err)
-				}
+				n.refreshWebhook()
 				downloadedSome = true
 			}
 			if !ok || h == 384 {
@@ -163,7 +164,7 @@ func parseGribDataFiles() (map[string][]string, error) {
 	err := filepath.Walk("grib-data", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Println(err)
-		} else if info.Mode().IsRegular() {
+		} else if info.Mode().IsRegular() && !strings.HasSuffix(info.Name(), ".tmp") {
 			files = append(files, info.Name())
 		}
 		return nil
@@ -241,9 +242,8 @@ func (n *Noaa) getGribData(moment time.Time, forecast int) bool {
 func downloadGribData(stamp Stamp, forecast int) (ok bool, err error) {
 	client := &http.Client{}
 
-	//url := "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_" + "1p00.pl" + "/gfs." + stamp.date + "/" + "gfs.t" + stamp.hour + "z.pgrb2.1p00.f" + fmt.Sprintf("%03d", forecast)
-	//https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.20201025/00/gfs.t00z.pgrb2.1p00.f303
-	url := "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs." + stamp.date + "/" + stamp.hour + "/gfs.t" + stamp.hour + "z.pgrb2.1p00.f" + fmt.Sprintf("%03d", forecast)
+	url := "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_" + "1p00.pl" + "/gfs." + stamp.date + "/" + "gfs.t" + stamp.hour + "z.pgrb2.1p00.f" + fmt.Sprintf("%03d", forecast)
+	//url := "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs." + stamp.date + "/" + stamp.hour + "/gfs.t" + stamp.hour + "z.pgrb2.1p00.f" + fmt.Sprintf("%03d", forecast)
 
 	log.Printf("Try downloading '%s'", url)
 
