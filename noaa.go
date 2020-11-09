@@ -57,7 +57,7 @@ func InitNoaa(refreshWebhook string) (*Noaa, error) {
 	s.Every(5).Minutes().StartAt(from.UTC()).Lock().Do(n.download)
 	go s.StartBlocking()
 
-	//n.download()
+	// n.download()
 
 	return n, nil
 }
@@ -125,7 +125,7 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 
 	for h <= 384 {
 		_, found := n.Forecasts[stamp.key(h)]
-		if stamp.fromNow(h) <= -3 || stamp.fromNow(h) <= 0 && found {
+		if stamp.fromNow(h) <= -3 || stamp.fromNow(h) <= -3 && found {
 			h += 3
 			continue
 		}
@@ -202,7 +202,7 @@ func parseGribDataFiles() (map[string][]string, error) {
 		}
 
 		forecastFiles, found := forecasts[stamp.key(h)]
-		if forecastHour >= 3 && found {
+		if forecastHour >= 0 && found {
 			for _, forecastFile := range forecastFiles {
 				log.Println("Delete", forecastFile)
 				os.Remove("grib-data/" + forecastFile)
@@ -211,7 +211,7 @@ func parseGribDataFiles() (map[string][]string, error) {
 		}
 
 		//quand c'est la prévision courante, on la conserve meme si une nouvelle prévision est arrivé
-		if !found || forecastHour >= 0 {
+		if !found || forecastHour >= -3 {
 			forecasts[stamp.key(h)] = append(forecasts[stamp.key(h)], f)
 		}
 	}

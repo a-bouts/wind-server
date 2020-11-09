@@ -26,6 +26,7 @@ func InitServer(n *Noaa) *mux.Router {
 
 	router.HandleFunc("/winds", s.getWindsHandler).Methods(http.MethodGet)
 	router.HandleFunc("/winds/{forecast}", s.getWindHandler).Methods(http.MethodGet)
+	router.HandleFunc("/winds/{forecast}/{stamp}", s.getWindHandlerByStamp).Methods(http.MethodGet)
 
 	return router
 }
@@ -68,6 +69,42 @@ func (s server) getWindsHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(forecasts); err != nil {
 		log.Println("Failed to serialize forecasts :", s.n.Forecasts, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s server) getWindHandlerByStamp(w http.ResponseWriter, r *http.Request) {
+
+	forecast := mux.Vars(r)["forecast"]
+	stamp := mux.Vars(r)["stamp"]
+
+	log.Println(forecast, stamp)
+
+	if _, found := s.n.Forecasts[forecast]; !found {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	i, err := strconv.Atoi(stamp)
+	if err != nil {
+		fmt.Println("Error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	in, err := os.Open("json-data/" + s.n.Forecasts[forecast][i])
+	if err != nil {
+		fmt.Println("Error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	defer in.Close()
+
+	_, err = io.Copy(w, in)
+	if err != nil {
+		fmt.Println("Error", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
