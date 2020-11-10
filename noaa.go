@@ -133,7 +133,8 @@ func (n *Noaa) nextToDownload(t time.Time) bool {
 			ok := n.getGribData(t, h)
 			if ok {
 				forecastFiles, found := n.Forecasts[stamp.key(h)]
-				if stamp.fromNow(h) >= 3 && found {
+				// keep the previous forcast only (no more the following)
+				if stamp.fromNow(h) >= 0 && found {
 					for _, forecastFile := range forecastFiles {
 						log.Println("Delete", forecastFile)
 						os.Remove("grib-data/" + forecastFile)
