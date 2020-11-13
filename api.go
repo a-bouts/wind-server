@@ -24,11 +24,20 @@ func InitServer(n *Noaa) *mux.Router {
 
 	s := server{n: n}
 
+	router.HandleFunc("/winds/-/healthz", s.healthz).Methods(http.MethodGet)
 	router.HandleFunc("/winds", s.getWindsHandler).Methods(http.MethodGet)
 	router.HandleFunc("/winds/{forecast}", s.getWindHandler).Methods(http.MethodGet)
 	router.HandleFunc("/winds/{forecast}/{stamp}", s.getWindHandlerByStamp).Methods(http.MethodGet)
 
 	return router
+}
+
+func (s server) healthz(w http.ResponseWriter, req *http.Request) {
+	type health struct {
+		Status string `json:"status"`
+	}
+
+	json.NewEncoder(w).Encode(health{Status: "Ok"})
 }
 
 type Forecast struct {
