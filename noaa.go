@@ -201,7 +201,7 @@ func parseGribDataFiles() (map[string][]string, error) {
 		}
 
 		forecastFiles, found := forecasts[stamp.key(h)]
-		if forecastHour >= 0 && found {
+		if forecastHour >= 3 && found {
 			for _, forecastFile := range forecastFiles {
 				log.Println("Delete", forecastFile)
 				os.Remove("grib-data/" + forecastFile)
