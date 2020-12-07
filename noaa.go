@@ -95,8 +95,8 @@ func (n *Noaa) clean() error {
 			log.Println("Delete", s, n.Forecasts[s][i])
 			os.Remove("grib-data/" + file)
 			os.Remove("json-data/" + file)
-			delete(n.Forecasts, s)
 		}
+		delete(n.Forecasts, s)
 	}
 
 	return nil
