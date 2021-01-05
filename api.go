@@ -31,7 +31,7 @@ func InitServer(n *Noaa) *mux.Router {
 
 	apiV1 := router.PathPrefix("/winds/api/v1").Subrouter()
 	apiV1.HandleFunc("/", s.getWindsHandler).Methods("POST")
-	router.HandleFunc("/winds/{forecast}/{stamp}", s.getWindHandlerByStamp).Methods(http.MethodGet)
+	apiV1.HandleFunc("/winds/{forecast}/{stamp}", s.getWindHandlerByStamp).Methods(http.MethodGet)
 
 	return router
 }
