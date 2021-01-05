@@ -124,6 +124,8 @@ func (s server) getWindHandlerByStampOld(w http.ResponseWriter, r *http.Request)
 
 func (s server) getWindHandlerByStamp(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Cache-Control", "public, max-age=10800, immutable")
+
 	forecast := mux.Vars(r)["forecast"]
 	stamp := mux.Vars(r)["stamp"]
 
@@ -152,7 +154,6 @@ func (s server) getWindHandlerByStamp(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			w.Header().Set("Cache-Control", "public, max-age=10800, immutable")
 			return
 		}
 	}
