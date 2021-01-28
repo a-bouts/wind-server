@@ -27,6 +27,8 @@ jobs:
         TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
         if [[ $VERSION =~ ^[0-9]\.[0-9]$ ]]; then
           TAGS="$TAGS --tag ${DOCKER_IMAGE}:latest"
+        else
+          TAGS="$TAGS --tag ${DOCKER_IMAGE}:${GITHUB_REF##*/}"
         fi
 
         echo ::set-output name=docker_image::${DOCKER_IMAGE}
