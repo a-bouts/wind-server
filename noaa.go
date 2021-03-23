@@ -266,7 +266,7 @@ func downloadGribData(stamp Stamp, forecast int) (ok bool, err error) {
 	q.Add("rightlon", "0")
 	q.Add("toplat", "50")
 	q.Add("bottomlat", "-30")
-	q.Add("dir", "/gfs."+stamp.date+"/"+stamp.hour)
+	q.Add("dir", "/gfs."+stamp.date+"/"+stamp.hour+"/atmos")
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := client.Do(req)
