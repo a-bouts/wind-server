@@ -241,7 +241,9 @@ func (n *Noaa) getGribData(moment time.Time, forecast int) bool {
 }
 
 func downloadGribData(stamp Stamp, forecast int) (ok bool, err error) {
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 20 * time.Second,
+	}
 
 	url := "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_" + "1p00.pl" + "/gfs." + stamp.date + "/" + "gfs.t" + stamp.hour + "z.pgrb2.1p00.f" + fmt.Sprintf("%03d", forecast)
 	//url := "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs." + stamp.date + "/" + stamp.hour + "/gfs.t" + stamp.hour + "z.pgrb2.1p00.f" + fmt.Sprintf("%03d", forecast)
