@@ -85,7 +85,7 @@ func (n *Noaa) clean() error {
 			return err
 		}
 
-		if t.Before(time.Now().UTC().Add(-3 * time.Hour)) {
+		if t.Before(time.Now().UTC().Add(-4 * time.Hour)) {
 			toDelete = append(toDelete, s)
 		}
 	}
@@ -193,7 +193,7 @@ func parseGribDataFiles() (map[string][]string, error) {
 
 		forecastHour := stamp.fromNow(h)
 
-		if forecastHour < -3 && cpt < len(files)-1 {
+		if forecastHour < -4 && cpt < len(files)-1 {
 			log.Println("Delete", f)
 			os.Remove("grib-data/" + f)
 			os.Remove("json-data/" + f)
